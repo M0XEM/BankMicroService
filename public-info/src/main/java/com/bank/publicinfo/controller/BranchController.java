@@ -28,7 +28,7 @@ import java.util.List;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/branches")
-@Tag(name = "Branch", description = "Контроллер для взаимодействия с отделениями банков")
+@Tag(name = "Отделения банков", description = "Контроллер для взаимодействия с отделениями банков")
 public class BranchController {
     private final BranchService branchService;
 
@@ -75,8 +75,8 @@ public class BranchController {
     @Operation(summary = "Обновить данные отделения банка")
     @ApiResponse(responseCode = "200", description = "Обновлено успешно",
             content = @Content(schema = @Schema(implementation = BranchDto.class)))
-    public ResponseEntity<BranchDto> update(@Valid @RequestBody BranchDto branchDto) {
-        final BranchDto updatedBranchDto = branchService.save(branchDto);
+    public ResponseEntity<BranchDto> update(@Valid @RequestBody BranchDto branchDto, @Valid @RequestParam Long id) {
+        final BranchDto updatedBranchDto = branchService.update(id, branchDto);
         return ResponseEntity.ok(updatedBranchDto);
     }
 

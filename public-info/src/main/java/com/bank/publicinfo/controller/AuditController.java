@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -27,7 +28,7 @@ import java.util.List;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/audits")
-@Tag(name = "Audit", description = "Контроллер для взаимодействия с аудитами")
+@Tag(name = "Аудиты", description = "Контроллер для взаимодействия с аудитами")
 public class AuditController {
     private final AuditService auditService;
 
@@ -40,12 +41,12 @@ public class AuditController {
         return ResponseEntity.ok(auditDtoList);
     }
 
-    @GetMapping("/{id}")
+    @GetMapping(params = "id")
     @Operation(summary = "Получить детали аудита по его идентификатору")
     @ApiResponse(responseCode = "200", description = "Выполнено успешно",
             content = @Content(schema = @Schema(implementation = AuditDto.class)))
     @ApiResponse(responseCode = "404", description = "Аудит не найден")
-    public ResponseEntity<AuditDto> getById(@Valid @PathVariable Long id) {
+    public ResponseEntity<AuditDto> getById(@Valid @RequestParam(value = "id", required = false) Long id) {
         final AuditDto auditDto = auditService.findById(id);
         return ResponseEntity.ok(auditDto);
     }
@@ -55,7 +56,7 @@ public class AuditController {
     @Operation(summary = "Создать новый аудит")
     @ApiResponse(responseCode = "201", description = "Создан успешно",
             content = @Content(schema = @Schema(implementation = AuditDto.class)))
-    public ResponseEntity<AuditDto> create(@Valid @RequestBody AuditDto auditDto) {
+    public ResponseEntity<AuditDto> createAudit(@Valid @RequestBody AuditDto auditDto) {
         final AuditDto createdAuditDto = auditService.save(auditDto);
         return ResponseEntity.status(HttpStatus.CREATED).body(createdAuditDto);
     }
@@ -64,8 +65,8 @@ public class AuditController {
     @Operation(summary = "Обновить данные аудита")
     @ApiResponse(responseCode = "200", description = "Обновлено успешно",
             content = @Content(schema = @Schema(implementation = AuditDto.class)))
-    public ResponseEntity<AuditDto> update(@Valid @RequestBody AuditDto auditDto) {
-        final AuditDto updatedAuditDTO = auditService.save(auditDto);
+    public ResponseEntity<AuditDto> updateAudit(@Valid @RequestBody AuditDto auditDto, @Valid @RequestParam Long id) {
+        final AuditDto updatedAuditDTO = auditService.update(id, auditDto);
         return ResponseEntity.ok(updatedAuditDTO);
     }
 

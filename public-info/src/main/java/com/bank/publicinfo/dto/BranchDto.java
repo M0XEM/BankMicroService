@@ -1,6 +1,7 @@
 package com.bank.publicinfo.dto;
 
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -17,6 +18,7 @@ import java.sql.Timestamp;
 @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class,
         property = "id")
 public class BranchDto {
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     Long id;
 
     String address;

@@ -15,6 +15,7 @@ import java.sql.Timestamp;
 @NoArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class AtmDto {
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     Long id;
 
     String address;
@@ -28,5 +29,4 @@ public class AtmDto {
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     @JsonIdentityReference(alwaysAsId = true)
     BranchDto branch;
-
 }

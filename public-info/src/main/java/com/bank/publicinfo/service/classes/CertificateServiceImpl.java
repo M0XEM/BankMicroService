@@ -10,8 +10,8 @@ import com.bank.publicinfo.service.interfaces.CertificateService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import javax.transaction.Transactional;
 import java.util.List;
 
 @Slf4j
@@ -21,6 +21,25 @@ import java.util.List;
 public class CertificateServiceImpl implements CertificateService {
     private final CertificateRepository certificateRepository;
     private final CertificateMapper certificateMapper;
+
+    @Override
+    @Transactional(readOnly = true)
+    public CertificateDto findById(Long id) {
+        return certificateMapper.toDto(certificateRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException("Нет сертификата с таким id - " + id)));
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<CertificateDto> findAllByBankDetailsId(Long bankDetailsId) {
+        return certificateMapper.toDtoList(certificateRepository.findAllByBankDetails_Id(bankDetailsId));
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<CertificateDto> findAll() {
+        return certificateMapper.toDtoList(certificateRepository.findAll());
+    }
 
     @Override
     public CertificateDto save(CertificateDto certificateDto) {
@@ -34,9 +53,15 @@ public class CertificateServiceImpl implements CertificateService {
     }
 
     @Override
-    public CertificateDto findById(Long id) {
-        return certificateMapper.toDto(certificateRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException("Нет сертификата с таким id - " + id)));
+    public CertificateDto update(Long id, CertificateDto certificateDto) {
+        if (certificateDto == null) {
+            throw new BadRequestException("В запросе нет данных о сертификате банка");
+        }
+        certificateDto.setId(id);
+        CertificateEntity entity = certificateRepository.save(certificateMapper.toEntity(certificateDto));
+        log.info("Сертификат с id - \"{}\" для банка с id - \"{}\" обновлен в базе данных",
+                entity.getId(), entity.getBankDetails().getId());
+        return certificateMapper.toDto(entity);
     }
 
     @Override
@@ -48,15 +73,5 @@ public class CertificateServiceImpl implements CertificateService {
             log.error("Сертификата с id - \"{}\" для банка с id - \"{}\" в базе данных не существует", certificateId, bankDetailsId);
             throw new NotFoundException("Сертификата с заданными параметрами не существует");
         }
-    }
-
-    @Override
-    public List<CertificateDto> findAll() {
-        return certificateMapper.toDtoList(certificateRepository.findAll());
-    }
-
-    @Override
-    public List<CertificateDto> findAllByBankDetailsId(Long bankDetailsId) {
-        return certificateMapper.toDtoList(certificateRepository.findAllByBankDetails_Id(bankDetailsId));
     }
 }

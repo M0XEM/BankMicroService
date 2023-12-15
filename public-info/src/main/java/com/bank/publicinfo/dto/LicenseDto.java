@@ -13,6 +13,7 @@ import lombok.experimental.FieldDefaults;
 @NoArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class LicenseDto {
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     Long id;
 
     byte[] photo;

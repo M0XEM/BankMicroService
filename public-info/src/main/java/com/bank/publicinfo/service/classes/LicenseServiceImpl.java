@@ -10,8 +10,8 @@ import com.bank.publicinfo.service.interfaces.LicenseService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import javax.transaction.Transactional;
 import java.util.List;
 
 @Slf4j
@@ -21,6 +21,25 @@ import java.util.List;
 public class LicenseServiceImpl implements LicenseService {
     private final LicenseRepository licenseRepository;
     private final LicenseMapper licenseMapper;
+
+    @Override
+    @Transactional(readOnly = true)
+    public LicenseDto findById(Long id) {
+        return licenseMapper.toDto(licenseRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException("Нет лицензии с таким id - " + id)));
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<LicenseDto> findAllByBankDetailsId(Long bankDetailsId) {
+        return licenseMapper.toDtoList(licenseRepository.findAllByBankDetails_Id(bankDetailsId));
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<LicenseDto> findAll() {
+        return licenseMapper.toDtoList(licenseRepository.findAll());
+    }
 
     @Override
     public LicenseDto save(LicenseDto licenseDto) {
@@ -34,9 +53,15 @@ public class LicenseServiceImpl implements LicenseService {
     }
 
     @Override
-    public LicenseDto findById(Long id) {
-        return licenseMapper.toDto(licenseRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException("Нет лицензии с таким id - " + id)));
+    public LicenseDto update(Long id, LicenseDto licenseDto) {
+        if (licenseDto == null) {
+            throw new BadRequestException("В запросе нет данных о лицензии банка");
+        }
+        licenseDto.setId(id);
+        LicenseEntity entity = licenseRepository.save(licenseMapper.toEntity(licenseDto));
+        log.info("Лицензия с id - \"{}\" для банка с id - \"{}\" обновлена в базе данных",
+                entity.getId(), entity.getBankDetails().getId());
+        return licenseMapper.toDto(entity);
     }
 
     @Override
@@ -48,15 +73,5 @@ public class LicenseServiceImpl implements LicenseService {
             log.error("Лицензии с id - \"{}\" для банка с id - \"{}\" в базе данных не существует", licenseId, bankDetailsId);
             throw new NotFoundException("Лицензии с заданными параметрами не существует");
         }
-    }
-
-    @Override
-    public List<LicenseDto> findAll() {
-        return licenseMapper.toDtoList(licenseRepository.findAll());
-    }
-
-    @Override
-    public List<LicenseDto> findAllByBankDetailsId(Long bankDetailsId) {
-        return licenseMapper.toDtoList(licenseRepository.findAllByBankDetails_Id(bankDetailsId));
     }
 }

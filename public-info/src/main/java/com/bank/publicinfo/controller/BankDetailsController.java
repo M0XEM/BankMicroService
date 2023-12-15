@@ -13,7 +13,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -28,7 +27,7 @@ import java.util.List;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/bank-details")
-@Tag(name = "Bank Details", description = "Контроллер для взаимодействия с информацией о банках")
+@Tag(name = "Информация о банках", description = "Контроллер для взаимодействия с информацией о банках")
 public class BankDetailsController {
     private final BankDetailsService bankDetailsService;
 
@@ -105,15 +104,16 @@ public class BankDetailsController {
     @Operation(summary = "Обновить данные банка")
     @ApiResponse(responseCode = "200", description = "Обновлено успешно",
             content = @Content(schema = @Schema(implementation = BankDetailsDto.class)))
-    public ResponseEntity<BankDetailsDto> update(@Valid @RequestBody BankDetailsDto bankDetailsDto) {
-        final BankDetailsDto updatedBankDetailsDto = bankDetailsService.save(bankDetailsDto);
+    public ResponseEntity<BankDetailsDto> update(@Valid @RequestBody BankDetailsDto bankDetailsDto,
+                                                 @Valid @RequestParam(value = "id") Long id) {
+        final BankDetailsDto updatedBankDetailsDto = bankDetailsService.update(id, bankDetailsDto);
         return ResponseEntity.ok(updatedBankDetailsDto);
     }
 
-    @DeleteMapping("/{id}")
+    @DeleteMapping()
     @Operation(summary = "Удалить банк по идентификатору")
     @ApiResponse(responseCode = "204", description = "Удалено успешно")
-    public ResponseEntity<Void> deleteById(@Valid @PathVariable Long id) {
+    public ResponseEntity<Void> deleteById(@Valid @RequestParam(value = "id") Long id) {
         bankDetailsService.deleteById(id);
         return ResponseEntity.noContent().build();
     }

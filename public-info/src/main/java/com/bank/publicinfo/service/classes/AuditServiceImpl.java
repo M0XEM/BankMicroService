@@ -10,8 +10,8 @@ import com.bank.publicinfo.service.interfaces.AuditService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import javax.transaction.Transactional;
 import java.util.List;
 
 @Slf4j
@@ -21,6 +21,19 @@ import java.util.List;
 public class AuditServiceImpl implements AuditService {
     private final AuditRepository auditRepository;
     private final AuditMapper auditMapper;
+
+    @Override
+    @Transactional(readOnly = true)
+    public AuditDto findById(Long id) {
+        return auditMapper.toDto(auditRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException("Нет пользователя с таким id - " + id)));
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<AuditDto> findAll() {
+        return auditMapper.toDtoList(auditRepository.findAll());
+    }
 
     @Override
     public AuditDto save(AuditDto auditDto) {
@@ -33,9 +46,14 @@ public class AuditServiceImpl implements AuditService {
     }
 
     @Override
-    public AuditDto findById(Long id) {
-        return auditMapper.toDto(auditRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException("Нет пользователя с таким id - " + id)));
+    public AuditDto update(Long id, AuditDto auditDto) {
+        if (auditDto == null) {
+            throw new BadRequestException("В запросе нет данных об аудите");
+        }
+        auditDto.setId(id);
+        AuditEntity entity = auditRepository.save(auditMapper.toEntity(auditDto));
+        log.info("Аудит с id - \"{}\" обновлен в базе данных", entity.getId());
+        return auditMapper.toDto(entity);
     }
 
     @Override
@@ -47,10 +65,5 @@ public class AuditServiceImpl implements AuditService {
             log.error("Аудита с id - \"{}\" в базе данных не существует", id);
             throw new NotFoundException("Аудита с заданным id не существует");
         }
-    }
-
-    @Override
-    public List<AuditDto> findAll() {
-        return auditMapper.toDtoList(auditRepository.findAll());
     }
 }

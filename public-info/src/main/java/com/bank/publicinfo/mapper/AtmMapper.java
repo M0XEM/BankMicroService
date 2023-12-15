@@ -7,11 +7,7 @@ import org.mapstruct.Mapper;
 import java.util.List;
 
 @Mapper(componentModel = "spring")
-public interface AtmMapper {
-    AtmDto toDto(AtmEntity entity);
-
-    AtmEntity toEntity(AtmDto dto);
-
+public interface AtmMapper extends MainMapper<AtmDto, AtmEntity> {
     List<AtmEntity> toEntityList(List<AtmDto> dto);
 
     List<AtmDto> toDtoList(List<AtmEntity> entity);

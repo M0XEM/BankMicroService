@@ -10,8 +10,8 @@ import com.bank.publicinfo.service.interfaces.BranchService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import javax.transaction.Transactional;
 import java.util.List;
 
 @Slf4j
@@ -21,6 +21,26 @@ import java.util.List;
 public class BranchServiceImpl implements BranchService {
     private final BranchRepository branchRepository;
     private final BranchMapper branchMapper;
+
+    @Override
+    @Transactional(readOnly = true)
+    public BranchDto findById(Long id) {
+        return branchMapper.toDto(branchRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException("Нет отделения банка с таким id - " + id)));
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public BranchDto findByPhoneNumber(Long phoneNumber) {
+        return branchMapper.toDto(branchRepository.findByPhoneNumber(phoneNumber)
+                .orElseThrow(() -> new NotFoundException("Нет отделения банка с таким номером телефона - " + phoneNumber)));
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<BranchDto> findAll() {
+        return branchMapper.toDtoList(branchRepository.findAll());
+    }
 
     @Override
     public BranchDto save(BranchDto branchDto) {
@@ -33,15 +53,14 @@ public class BranchServiceImpl implements BranchService {
     }
 
     @Override
-    public BranchDto findById(Long id) {
-        return branchMapper.toDto(branchRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException("Нет отделения банка с таким id - " + id)));
-    }
-
-    @Override
-    public BranchDto findByPhoneNumber(Long phoneNumber) {
-        return branchMapper.toDto(branchRepository.findByPhoneNumber(phoneNumber)
-                .orElseThrow(() -> new NotFoundException("Нет отделения банка с таким номером телефона - " + phoneNumber)));
+    public BranchDto update(Long id, BranchDto branchDto) {
+        if (branchDto == null) {
+            throw new BadRequestException("В запросе нет данных об отделении банка");
+        }
+        branchDto.setId(id);
+        BranchEntity entity = branchRepository.save(branchMapper.toEntity(branchDto));
+        log.info("Отделение банка с id - \"{}\" обновлено в базе данных", entity.getId());
+        return branchMapper.toDto(entity);
     }
 
     @Override
@@ -53,10 +72,5 @@ public class BranchServiceImpl implements BranchService {
             log.error("Отделения банка с id - \"{}\" в базе данных не существует", id);
             throw new NotFoundException("Отделения банка с заданным id не существует");
         }
-    }
-
-    @Override
-    public List<BranchDto> findAll() {
-        return branchMapper.toDtoList(branchRepository.findAll());
     }
 }

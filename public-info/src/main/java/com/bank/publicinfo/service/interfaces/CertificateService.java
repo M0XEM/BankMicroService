@@ -5,13 +5,15 @@ import com.bank.publicinfo.dto.CertificateDto;
 import java.util.List;
 
 public interface CertificateService {
-    CertificateDto save(CertificateDto certificateDto);
-
     CertificateDto findById(Long id);
 
-    void deleteByCertificateIdAndBankDetailsId(Long certificateId, Long bankDetailsId);
+    List<CertificateDto> findAllByBankDetailsId(Long bankDetailsId);
 
     List<CertificateDto> findAll();
 
-    List<CertificateDto> findAllByBankDetailsId(Long bankDetailsId);
+    CertificateDto save(CertificateDto certificateDto);
+
+    CertificateDto update(Long id, CertificateDto certificateDto);
+
+    void deleteByCertificateIdAndBankDetailsId(Long certificateId, Long bankDetailsId);
 }

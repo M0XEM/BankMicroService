@@ -8,11 +8,7 @@ import org.mapstruct.Mapper;
 import java.util.List;
 
 @Mapper(componentModel = "spring")
-public interface AuditMapper {
-    AuditDto toDto(AuditEntity entity);
-
-    AuditEntity toEntity(AuditDto dto);
-
+public interface AuditMapper extends MainMapper<AuditDto, AuditEntity> {
     List<AuditEntity> toEntityList(List<AuditDto> dto);
 
     List<AuditDto> toDtoList(List<AuditEntity> entity);

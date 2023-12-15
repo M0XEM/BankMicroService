@@ -15,8 +15,10 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -26,7 +28,7 @@ import java.util.List;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/bank-details")
-@Tag(name = "License", description = "Контроллер для взаимодействия с лицензиями банка")
+@Tag(name = "Лицензии", description = "Контроллер для взаимодействия с лицензиями банка")
 public class LicenseController {
     private final LicenseService licenseService;
     private final BankDetailsService bankDetailsService;
@@ -55,17 +57,31 @@ public class LicenseController {
     @Operation(summary = "Добавить новую лицензию банка")
     @ApiResponse(responseCode = "201", description = "Создан успешно",
             content = @Content(schema = @Schema(implementation = LicenseDto.class)))
-    public ResponseEntity<LicenseDto> addLicense(@Valid @RequestBody LicenseDto licenseDto, @PathVariable Long id) {
+    public ResponseEntity<LicenseDto> addLicense(@Valid @RequestBody LicenseDto licenseDto,
+                                                 @Valid @PathVariable Long id) {
         licenseDto.setBankDetails(bankDetailsService.findById(id));
         final LicenseDto createdLicenseDto = licenseService.save(licenseDto);
         return ResponseEntity.status(HttpStatus.CREATED).body(createdLicenseDto);
     }
 
-    @DeleteMapping("/{id}/licenses/{license_id}")
+    @PutMapping("/{id}/licenses")
+    @Operation(summary = "Обновить лицензии банка")
+    @ApiResponse(responseCode = "200", description = "Обновлено успешно",
+            content = @Content(schema = @Schema(implementation = LicenseDto.class)))
+    public ResponseEntity<LicenseDto> update(@Valid @RequestBody LicenseDto licenseDto,
+                                             @Valid @PathVariable Long id,
+                                             @Valid @RequestParam(value = "license_id") Long licenseId) {
+        licenseDto.setBankDetails(bankDetailsService.findById(id));
+        final LicenseDto updatedLicenseDto = licenseService.update(licenseId, licenseDto);
+        return ResponseEntity.ok(updatedLicenseDto);
+    }
+
+    @DeleteMapping("/{id}/licenses")
     @Operation(summary = "Удалить лицензию банка по идентификатору")
     @ApiResponse(responseCode = "204", description = "Удалено успешно")
-    public ResponseEntity<Void> deleteLicenseById(@Valid @PathVariable Long id, @Valid @PathVariable Long license_id) {
-        licenseService.deleteByLicenseIdAndBankDetailsId(license_id, id);
+    public ResponseEntity<Void> deleteLicenseById(@Valid @PathVariable Long id,
+                                                  @Valid @RequestParam(value = "license_id") Long licenseId) {
+        licenseService.deleteByLicenseIdAndBankDetailsId(licenseId, id);
         return ResponseEntity.noContent().build();
     }
 }

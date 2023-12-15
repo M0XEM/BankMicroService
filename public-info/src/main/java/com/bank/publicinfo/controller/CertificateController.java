@@ -15,8 +15,10 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -26,7 +28,7 @@ import java.util.List;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/bank-details")
-@Tag(name = "Certificate", description = "Контроллер для взаимодействия с сертификатами банка")
+@Tag(name = "Сертификаты", description = "Контроллер для взаимодействия с сертификатами банка")
 public class CertificateController {
     private final CertificateService certificateService;
     private final BankDetailsService bankDetailsService;
@@ -55,17 +57,31 @@ public class CertificateController {
     @Operation(summary = "Добавить новый сертификат банка")
     @ApiResponse(responseCode = "201", description = "Создан успешно",
             content = @Content(schema = @Schema(implementation = CertificateDto.class)))
-    public ResponseEntity<CertificateDto> addCertificate(@Valid @RequestBody CertificateDto certificateDto, @PathVariable Long id) {
+    public ResponseEntity<CertificateDto> addCertificate(@Valid @RequestBody CertificateDto certificateDto,
+                                                         @Valid @PathVariable Long id) {
         certificateDto.setBankDetails(bankDetailsService.findById(id));
         final CertificateDto createdCertificateDto = certificateService.save(certificateDto);
         return ResponseEntity.status(HttpStatus.CREATED).body(createdCertificateDto);
     }
 
-    @DeleteMapping("/{id}/certificates/{certificate_id}")
+    @PutMapping("/{id}/certificates")
+    @Operation(summary = "Обновить сертификат банка")
+    @ApiResponse(responseCode = "200", description = "Обновлено успешно",
+            content = @Content(schema = @Schema(implementation = CertificateDto.class)))
+    public ResponseEntity<CertificateDto> update(@Valid @RequestBody CertificateDto certificateDto,
+                                                 @Valid @PathVariable Long id,
+                                                 @Valid @RequestParam(value = "certificate_id") Long certificateId) {
+        certificateDto.setBankDetails(bankDetailsService.findById(id));
+        final CertificateDto updatedCertificateDto = certificateService.update(certificateId, certificateDto);
+        return ResponseEntity.ok(updatedCertificateDto);
+    }
+
+    @DeleteMapping("/{id}/certificates")
     @Operation(summary = "Удалить сертификат банка по идентификатору")
     @ApiResponse(responseCode = "204", description = "Удалено успешно")
-    public ResponseEntity<Void> deleteCertificateById(@Valid @PathVariable Long id, @Valid @PathVariable Long certificate_id) {
-        certificateService.deleteByCertificateIdAndBankDetailsId(certificate_id, id);
+    public ResponseEntity<Void> deleteCertificateById(@Valid @PathVariable Long id,
+                                                      @Valid @RequestParam(value = "certificate_id") Long certificateId) {
+        certificateService.deleteByCertificateIdAndBankDetailsId(certificateId, id);
         return ResponseEntity.noContent().build();
     }
 }

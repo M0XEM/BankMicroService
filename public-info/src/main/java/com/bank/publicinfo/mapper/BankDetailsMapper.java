@@ -7,11 +7,7 @@ import org.mapstruct.Mapper;
 import java.util.List;
 
 @Mapper(componentModel = "spring")
-public interface BankDetailsMapper {
-    BankDetailsDto toDto(BankDetailsEntity entity);
-
-    BankDetailsEntity toEntity(BankDetailsDto dto);
-
+public interface BankDetailsMapper extends MainMapper<BankDetailsDto, BankDetailsEntity> {
     List<BankDetailsEntity> toEntityList(List<BankDetailsDto> dto);
 
     List<BankDetailsDto> toDtoList(List<BankDetailsEntity> entity);

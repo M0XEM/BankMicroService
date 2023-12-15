@@ -5,13 +5,15 @@ import com.bank.publicinfo.dto.BranchDto;
 import java.util.List;
 
 public interface BranchService {
-    BranchDto save(BranchDto branchDto);
-
     BranchDto findById(Long id);
 
     BranchDto findByPhoneNumber(Long phoneNumber);
 
-    void deleteById(Long id);
-
     List<BranchDto> findAll();
+
+    BranchDto save(BranchDto branchDto);
+
+    BranchDto update(Long id, BranchDto branchDto);
+
+    void deleteById(Long id);
 }

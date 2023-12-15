@@ -10,8 +10,8 @@ import com.bank.publicinfo.service.interfaces.AtmService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import javax.transaction.Transactional;
 import java.util.List;
 
 @Slf4j
@@ -23,6 +23,25 @@ public class AtmServiceImpl implements AtmService {
     private final AtmMapper atmMapper;
 
     @Override
+    @Transactional(readOnly = true)
+    public AtmDto findById(Long id) {
+        return atmMapper.toDto(atmRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException("Нет банкомата с таким id - " + id)));
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<AtmDto> findAllByBranchId(Long branchId) {
+        return atmMapper.toDtoList(atmRepository.findAllByBranch_Id(branchId));
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<AtmDto> findAll() {
+        return atmMapper.toDtoList(atmRepository.findAll());
+    }
+
+    @Override
     public AtmDto save(AtmDto atmDto) {
         if (atmDto == null) {
             throw new BadRequestException("В запросе нет данных о банкомате");
@@ -31,7 +50,7 @@ public class AtmServiceImpl implements AtmService {
         try {
             log.info("Банкомат с id - \"{}\" для банка с id - \"{}\" сохранен в базе данных",
                     entity.getId(), entity.getBranch().getId());
-        } catch (NullPointerException e) {
+        } catch (NotFoundException e) {
             log.info("Банкомат с id - \"{}\" без отделения банка сохранен в базе данных",
                     entity.getId());
         }
@@ -39,9 +58,31 @@ public class AtmServiceImpl implements AtmService {
     }
 
     @Override
-    public AtmDto findById(Long id) {
-        return atmMapper.toDto(atmRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException("Нет банкомата с таким id - " + id)));
+    public AtmDto update(Long id, AtmDto atmDto) {
+        if (atmDto == null) {
+            throw new BadRequestException("В запросе нет данных о банкомате");
+        }
+        atmDto.setId(id);
+        AtmEntity entity = atmRepository.save(atmMapper.toEntity(atmDto));
+        try {
+            log.info("Банкомат с id - \"{}\" для банка с id - \"{}\" обновлен в базе данных",
+                    entity.getId(), entity.getBranch().getId());
+        } catch (NotFoundException e) {
+            log.info("Банкомат с id - \"{}\" без отделения банка обновлен в базе данных",
+                    entity.getId());
+        }
+        return atmMapper.toDto(entity);
+    }
+
+    @Override
+    public void deleteByAtmId(Long atmId) {
+        try {
+            atmRepository.deleteById(atmId);
+            log.info("Банкомат с id - \"{}\" без отделения банка удален из базы данных", atmId);
+        } catch (Exception e) {
+            log.error("Банкомата с id - \"{}\" без отделения банка в базе данных не существует", atmId);
+            throw new NotFoundException("Банкомата с заданными параметрами не существует");
+        }
     }
 
     @Override
@@ -53,15 +94,5 @@ public class AtmServiceImpl implements AtmService {
             log.error("Банкомата с id - \"{}\" для отделения банка с id - \"{}\" в базе данных не существует", atmId, branchId);
             throw new NotFoundException("Банкомата с заданными параметрами не существует");
         }
-    }
-
-    @Override
-    public List<AtmDto> findAll() {
-        return atmMapper.toDtoList(atmRepository.findAll());
-    }
-
-    @Override
-    public List<AtmDto> findAllByBranchId(Long branchId) {
-        return atmMapper.toDtoList(atmRepository.findAllByBranch_Id(branchId));
     }
 }
