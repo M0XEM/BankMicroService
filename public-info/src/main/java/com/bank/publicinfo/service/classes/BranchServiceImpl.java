@@ -1,5 +1,6 @@
 package com.bank.publicinfo.service.classes;
 
+import com.bank.publicinfo.aspect.annotation.Auditable;
 import com.bank.publicinfo.dto.BranchDto;
 import com.bank.publicinfo.entity.BranchEntity;
 import com.bank.publicinfo.exception.BadRequestException;
@@ -43,27 +44,30 @@ public class BranchServiceImpl implements BranchService {
     }
 
     @Override
-    public BranchDto save(BranchDto branchDto) {
-        if (branchDto == null) {
+    @Auditable(entityType = "branch", operationType = "save")
+    public BranchDto save(BranchDto dto) {
+        if (dto == null) {
             throw new BadRequestException("В запросе нет данных об отделении банка");
         }
-        BranchEntity entity = branchRepository.save(branchMapper.toEntity(branchDto));
+        BranchEntity entity = branchRepository.save(branchMapper.toEntity(dto));
         log.info("Отделение банка с id - \"{}\" сохранен в базе данных", entity.getId());
         return branchMapper.toDto(entity);
     }
 
     @Override
-    public BranchDto update(Long id, BranchDto branchDto) {
-        if (branchDto == null) {
+    @Auditable(entityType = "branch", operationType = "update")
+    public BranchDto update(Long id, BranchDto dto) {
+        if (dto == null) {
             throw new BadRequestException("В запросе нет данных об отделении банка");
         }
-        branchDto.setId(id);
-        BranchEntity entity = branchRepository.save(branchMapper.toEntity(branchDto));
+        dto.setId(id);
+        BranchEntity entity = branchRepository.save(branchMapper.toEntity(dto));
         log.info("Отделение банка с id - \"{}\" обновлено в базе данных", entity.getId());
         return branchMapper.toDto(entity);
     }
 
     @Override
+    @Auditable(entityType = "branch", operationType = "delete")
     public void deleteById(Long id) {
         try {
             branchRepository.deleteById(id);

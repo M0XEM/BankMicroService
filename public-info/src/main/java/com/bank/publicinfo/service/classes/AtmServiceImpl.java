@@ -1,5 +1,6 @@
 package com.bank.publicinfo.service.classes;
 
+import com.bank.publicinfo.aspect.annotation.Auditable;
 import com.bank.publicinfo.dto.AtmDto;
 import com.bank.publicinfo.entity.AtmEntity;
 import com.bank.publicinfo.exception.BadRequestException;
@@ -42,15 +43,16 @@ public class AtmServiceImpl implements AtmService {
     }
 
     @Override
-    public AtmDto save(AtmDto atmDto) {
-        if (atmDto == null) {
+    @Auditable(entityType = "atm", operationType = "save")
+    public AtmDto save(AtmDto dto) {
+        if (dto == null) {
             throw new BadRequestException("В запросе нет данных о банкомате");
         }
-        AtmEntity entity = atmRepository.save(atmMapper.toEntity(atmDto));
+        AtmEntity entity = atmRepository.save(atmMapper.toEntity(dto));
         try {
             log.info("Банкомат с id - \"{}\" для банка с id - \"{}\" сохранен в базе данных",
                     entity.getId(), entity.getBranch().getId());
-        } catch (NotFoundException e) {
+        } catch (NullPointerException e) {
             log.info("Банкомат с id - \"{}\" без отделения банка сохранен в базе данных",
                     entity.getId());
         }
@@ -58,16 +60,17 @@ public class AtmServiceImpl implements AtmService {
     }
 
     @Override
-    public AtmDto update(Long id, AtmDto atmDto) {
-        if (atmDto == null) {
+    @Auditable(entityType = "atm", operationType = "update")
+    public AtmDto update(Long id, AtmDto dto) {
+        if (dto == null) {
             throw new BadRequestException("В запросе нет данных о банкомате");
         }
-        atmDto.setId(id);
-        AtmEntity entity = atmRepository.save(atmMapper.toEntity(atmDto));
+        dto.setId(id);
+        AtmEntity entity = atmRepository.save(atmMapper.toEntity(dto));
         try {
             log.info("Банкомат с id - \"{}\" для банка с id - \"{}\" обновлен в базе данных",
                     entity.getId(), entity.getBranch().getId());
-        } catch (NotFoundException e) {
+        } catch (NullPointerException e) {
             log.info("Банкомат с id - \"{}\" без отделения банка обновлен в базе данных",
                     entity.getId());
         }
@@ -75,6 +78,7 @@ public class AtmServiceImpl implements AtmService {
     }
 
     @Override
+    @Auditable(entityType = "atm", operationType = "delete")
     public void deleteByAtmId(Long atmId) {
         try {
             atmRepository.deleteById(atmId);
@@ -86,6 +90,7 @@ public class AtmServiceImpl implements AtmService {
     }
 
     @Override
+    @Auditable(entityType = "atm", operationType = "delete")
     public void deleteByAtmIdAndBranchId(Long atmId, Long branchId) {
         try {
             atmRepository.deleteByIdAndBranch_Id(atmId, branchId);

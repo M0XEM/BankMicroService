@@ -1,5 +1,6 @@
 package com.bank.publicinfo.dto;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIdentityReference;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AccessLevel;
@@ -8,6 +9,8 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.FieldDefaults;
 
+import javax.persistence.Column;
+import java.sql.Time;
 import java.sql.Timestamp;
 
 @Data
@@ -15,14 +18,15 @@ import java.sql.Timestamp;
 @NoArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class AtmDto {
-    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     Long id;
 
     String address;
 
-    Timestamp startOfWork;
+    @JsonFormat(pattern = "HH:mm:ss", shape = JsonFormat.Shape.STRING)
+    Time startOfWork;
 
-    Timestamp endOfWork;
+    @JsonFormat(pattern = "HH:mm:ss", shape = JsonFormat.Shape.STRING)
+    Time endOfWork;
 
     Boolean allHours;
 

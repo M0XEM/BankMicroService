@@ -7,6 +7,7 @@ import com.bank.publicinfo.exception.NotFoundException;
 import com.bank.publicinfo.mapper.AuditMapper;
 import com.bank.publicinfo.repository.AuditRepository;
 import com.bank.publicinfo.service.interfaces.AuditService;
+import lombok.Builder;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -17,6 +18,7 @@ import java.util.List;
 @Slf4j
 @Service
 @RequiredArgsConstructor
+@Builder
 @Transactional
 public class AuditServiceImpl implements AuditService {
     private final AuditRepository auditRepository;
@@ -26,7 +28,7 @@ public class AuditServiceImpl implements AuditService {
     @Transactional(readOnly = true)
     public AuditDto findById(Long id) {
         return auditMapper.toDto(auditRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException("Нет пользователя с таким id - " + id)));
+                .orElseThrow(() -> new NotFoundException("Нет аудита с таким id - " + id)));
     }
 
     @Override
@@ -36,22 +38,22 @@ public class AuditServiceImpl implements AuditService {
     }
 
     @Override
-    public AuditDto save(AuditDto auditDto) {
-        if (auditDto == null) {
+    public AuditDto save(AuditDto dto) {
+        if (dto == null) {
             throw new BadRequestException("В запросе нет данных об аудите");
         }
-        AuditEntity entity = auditRepository.save(auditMapper.toEntity(auditDto));
+        AuditEntity entity = auditRepository.save(auditMapper.toEntity(dto));
         log.info("Аудит с id - \"{}\" сохранен в базе данных", entity.getId());
         return auditMapper.toDto(entity);
     }
 
     @Override
-    public AuditDto update(Long id, AuditDto auditDto) {
-        if (auditDto == null) {
+    public AuditDto update(Long id, AuditDto dto) {
+        if (dto == null) {
             throw new BadRequestException("В запросе нет данных об аудите");
         }
-        auditDto.setId(id);
-        AuditEntity entity = auditRepository.save(auditMapper.toEntity(auditDto));
+        dto.setId(id);
+        AuditEntity entity = auditRepository.save(auditMapper.toEntity(dto));
         log.info("Аудит с id - \"{}\" обновлен в базе данных", entity.getId());
         return auditMapper.toDto(entity);
     }

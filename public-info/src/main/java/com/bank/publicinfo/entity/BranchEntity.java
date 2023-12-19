@@ -1,5 +1,6 @@
 package com.bank.publicinfo.entity;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -13,7 +14,7 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
-import java.sql.Timestamp;
+import java.sql.Time;
 
 @Entity
 @Table(name = "branch", schema = "public_bank_information")
@@ -38,8 +39,10 @@ public class BranchEntity {
     String city;
 
     @Column(name = "start_of_work", nullable = false)
-    Timestamp startOfWork;
+    @JsonFormat(pattern = "HH:mm:ss", shape = JsonFormat.Shape.STRING)
+    Time startOfWork;
 
     @Column(name = "end_of_work", nullable = false)
-    Timestamp endOfWork;
+    @JsonFormat(pattern = "HH:mm:ss", shape = JsonFormat.Shape.STRING)
+    Time endOfWork;
 }

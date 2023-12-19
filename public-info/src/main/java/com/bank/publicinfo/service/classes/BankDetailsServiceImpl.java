@@ -1,5 +1,6 @@
 package com.bank.publicinfo.service.classes;
 
+import com.bank.publicinfo.aspect.annotation.Auditable;
 import com.bank.publicinfo.dto.BankDetailsDto;
 import com.bank.publicinfo.entity.BankDetailsEntity;
 import com.bank.publicinfo.exception.BadRequestException;
@@ -64,27 +65,30 @@ public class BankDetailsServiceImpl implements BankDetailsService {
     }
 
     @Override
-    public BankDetailsDto save(BankDetailsDto bankDetailsDto) {
-        if (bankDetailsDto == null) {
+    @Auditable(entityType = "bankDetails", operationType = "save")
+    public BankDetailsDto save(BankDetailsDto dto) {
+        if (dto == null) {
             throw new BadRequestException("В запросе нет данных о банке");
         }
-        BankDetailsEntity entity = bankDetailsRepository.save(bankDetailsMapper.toEntity(bankDetailsDto));
+        BankDetailsEntity entity = bankDetailsRepository.save(bankDetailsMapper.toEntity(dto));
         log.info("Банк с id - \"{}\" сохранен в базе данных", entity.getId());
         return bankDetailsMapper.toDto(entity);
     }
 
     @Override
-    public BankDetailsDto update(Long id, BankDetailsDto bankDetailsDto) {
-        if (bankDetailsDto == null) {
+    @Auditable(entityType = "bankDetails", operationType = "update")
+    public BankDetailsDto update(Long id, BankDetailsDto dto) {
+        if (dto == null) {
             throw new BadRequestException("В запросе нет данных о банке");
         }
-        bankDetailsDto.setId(id);
-        BankDetailsEntity entity = bankDetailsRepository.save(bankDetailsMapper.toEntity(bankDetailsDto));
+        dto.setId(id);
+        BankDetailsEntity entity = bankDetailsRepository.save(bankDetailsMapper.toEntity(dto));
         log.info("Банк с id - \"{}\" обновлен в базе данных", entity.getId());
         return bankDetailsMapper.toDto(entity);
     }
 
     @Override
+    @Auditable(entityType = "bankDetails", operationType = "delete")
     public void deleteById(Long id) {
         try {
             bankDetailsRepository.deleteById(id);

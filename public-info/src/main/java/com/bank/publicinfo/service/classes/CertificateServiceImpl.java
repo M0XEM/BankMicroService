@@ -1,5 +1,6 @@
 package com.bank.publicinfo.service.classes;
 
+import com.bank.publicinfo.aspect.annotation.Auditable;
 import com.bank.publicinfo.dto.CertificateDto;
 import com.bank.publicinfo.entity.CertificateEntity;
 import com.bank.publicinfo.exception.BadRequestException;
@@ -42,29 +43,32 @@ public class CertificateServiceImpl implements CertificateService {
     }
 
     @Override
-    public CertificateDto save(CertificateDto certificateDto) {
-        if (certificateDto == null) {
+    @Auditable(entityType = "certificate", operationType = "save")
+    public CertificateDto save(CertificateDto dto) {
+        if (dto == null) {
             throw new BadRequestException("В запросе нет данных о сертификате банка");
         }
-        CertificateEntity entity = certificateRepository.save(certificateMapper.toEntity(certificateDto));
+        CertificateEntity entity = certificateRepository.save(certificateMapper.toEntity(dto));
         log.info("Сертификат с id - \"{}\" для банка с id - \"{}\" сохранен в базе данных",
                 entity.getId(), entity.getBankDetails().getId());
         return certificateMapper.toDto(entity);
     }
 
     @Override
-    public CertificateDto update(Long id, CertificateDto certificateDto) {
-        if (certificateDto == null) {
+    @Auditable(entityType = "certificate", operationType = "update")
+    public CertificateDto update(Long id, CertificateDto dto) {
+        if (dto == null) {
             throw new BadRequestException("В запросе нет данных о сертификате банка");
         }
-        certificateDto.setId(id);
-        CertificateEntity entity = certificateRepository.save(certificateMapper.toEntity(certificateDto));
+        dto.setId(id);
+        CertificateEntity entity = certificateRepository.save(certificateMapper.toEntity(dto));
         log.info("Сертификат с id - \"{}\" для банка с id - \"{}\" обновлен в базе данных",
                 entity.getId(), entity.getBankDetails().getId());
         return certificateMapper.toDto(entity);
     }
 
     @Override
+    @Auditable(entityType = "certificate", operationType = "delete")
     public void deleteByCertificateIdAndBankDetailsId(Long certificateId, Long bankDetailsId) {
         try {
             certificateRepository.deleteByIdAndBankDetails_Id(certificateId, bankDetailsId);

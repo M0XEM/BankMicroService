@@ -1,5 +1,6 @@
 package com.bank.publicinfo.entity;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -15,6 +16,7 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
+import java.sql.Time;
 import java.sql.Timestamp;
 
 @Entity
@@ -33,11 +35,13 @@ public class AtmEntity {
     @Column(name = "address", length = 370, nullable = false)
     String address;
 
-    @Column(name = "start_of_work")
-    Timestamp startOfWork;
+    @Column(name = "start_of_work", nullable = false)
+    @JsonFormat(pattern = "HH:mm:ss", shape = JsonFormat.Shape.STRING)
+    Time startOfWork;
 
-    @Column(name = "end_of_work")
-    Timestamp endOfWork;
+    @Column(name = "end_of_work", nullable = false)
+    @JsonFormat(pattern = "HH:mm:ss", shape = JsonFormat.Shape.STRING)
+    Time endOfWork;
 
     @Column(name = "all_hours", nullable = false)
     Boolean allHours;

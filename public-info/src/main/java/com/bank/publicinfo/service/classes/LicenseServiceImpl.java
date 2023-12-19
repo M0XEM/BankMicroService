@@ -1,5 +1,6 @@
 package com.bank.publicinfo.service.classes;
 
+import com.bank.publicinfo.aspect.annotation.Auditable;
 import com.bank.publicinfo.dto.LicenseDto;
 import com.bank.publicinfo.entity.LicenseEntity;
 import com.bank.publicinfo.exception.BadRequestException;
@@ -42,29 +43,32 @@ public class LicenseServiceImpl implements LicenseService {
     }
 
     @Override
-    public LicenseDto save(LicenseDto licenseDto) {
-        if (licenseDto == null) {
+    @Auditable(entityType = "license", operationType = "save")
+    public LicenseDto save(LicenseDto dto) {
+        if (dto == null) {
             throw new BadRequestException("В запросе нет данных о лицензии банка");
         }
-        LicenseEntity entity = licenseRepository.save(licenseMapper.toEntity(licenseDto));
+        LicenseEntity entity = licenseRepository.save(licenseMapper.toEntity(dto));
         log.info("Лицензия с id - \"{}\" для банка с id - \"{}\" сохранен в базе данных",
                 entity.getId(), entity.getBankDetails().getId());
         return licenseMapper.toDto(entity);
     }
 
     @Override
-    public LicenseDto update(Long id, LicenseDto licenseDto) {
-        if (licenseDto == null) {
+    @Auditable(entityType = "license", operationType = "update")
+    public LicenseDto update(Long id, LicenseDto dto) {
+        if (dto == null) {
             throw new BadRequestException("В запросе нет данных о лицензии банка");
         }
-        licenseDto.setId(id);
-        LicenseEntity entity = licenseRepository.save(licenseMapper.toEntity(licenseDto));
+        dto.setId(id);
+        LicenseEntity entity = licenseRepository.save(licenseMapper.toEntity(dto));
         log.info("Лицензия с id - \"{}\" для банка с id - \"{}\" обновлена в базе данных",
                 entity.getId(), entity.getBankDetails().getId());
         return licenseMapper.toDto(entity);
     }
 
     @Override
+    @Auditable(entityType = "license", operationType = "delete")
     public void deleteByLicenseIdAndBankDetailsId(Long licenseId, Long bankDetailsId) {
         try {
             licenseRepository.deleteByIdAndBankDetails_Id(licenseId, bankDetailsId);
