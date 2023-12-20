@@ -1,25 +1,32 @@
 package com.bank.history.service;
 
+import com.bank.history.dto.HistoryDto;
 import com.bank.history.entity.HistoryEntity;
+import com.bank.history.mapper.HistoryMapper;
 import com.bank.history.repository.HistoryRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityNotFoundException;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class HistoryServiceImpl implements HistoryService{
 
     private final HistoryRepository historyRepository;
+    private final HistoryMapper mapper;
 
     @Override
     @Transactional
     public void addHistory(Long id, String entityType) {
+        log.info("Сохраняем запись");
         HistoryEntity historyEntity = new HistoryEntity();
 
         switch (entityType) {
@@ -51,7 +58,8 @@ public class HistoryServiceImpl implements HistoryService{
 
     @Override
     @Transactional(readOnly = true)
-    public HistoryEntity findByEntity(Long id, String entityType) {
+    public HistoryDto findByEntity(Long id, String entityType) {
+        log.info("поиск события");
         Optional<HistoryEntity> optional = Optional.empty();
 
         switch (entityType) {
@@ -78,29 +86,35 @@ public class HistoryServiceImpl implements HistoryService{
                 break;
         }
 
-        return optional.orElseThrow(() ->
+        HistoryEntity entity = optional.orElseThrow(() ->
                             new EntityNotFoundException("History with " + entityType + "Id = "
                                     + id + " not found"));
+        return mapper.toDto(entity);
     }
 
     @Override
     @Transactional(readOnly = true)
-    public HistoryEntity findByHistoryId(Long id) {
-        return historyRepository.findById(id)
+    public HistoryDto findByHistoryId(Long id) {
+        log.info("поиск записи HistoryEntity");
+        HistoryEntity entity = historyRepository.findById(id)
                 .orElseThrow(() ->
                         new EntityNotFoundException("History with id = "
                                 + id + " not found"));
+        return mapper.toDto(entity);
     }
 
     @Override
     @Transactional(readOnly = true)
-    public List<HistoryEntity> findAllHistories() {
-        return historyRepository.findAll();
+    public List<HistoryDto> findAllHistories() {
+        log.info("поиск записи HistoryEntity");
+        return mapper.toDtoList(historyRepository.findAll());
     }
+
 
     @Override
     @Transactional(readOnly = true)
-    public List<HistoryEntity> findAllByEntityType(String entityType) {
+    public List<HistoryDto> findAllByEntityType(String entityType) {
+        log.info("поиск всех записей HistoryEntity");
         List<HistoryEntity> entityList = Collections.emptyList();
 
         switch (entityType) {
@@ -126,8 +140,46 @@ public class HistoryServiceImpl implements HistoryService{
             default:
                 break;
         }
-
-        return entityList;
+        return mapper.toDtoList(entityList);
     }
 
+
+    @Override
+    @Transactional
+    public HistoryDto update(Long id, HistoryDto dto) {
+        log.info("обновление записи HistoryEntity");
+        HistoryEntity entity = historyRepository.findById(id)
+                .orElseThrow(() ->
+                        new EntityNotFoundException("History with id = "
+                                + id + " not found"));
+        if (Objects.nonNull(dto.getTransferAuditId())) {
+            entity.setTransferAuditId(dto.getTransferAuditId());
+        }
+        if (Objects.nonNull(dto.getAccountAuditId())) {
+            entity.setAccountAuditId(dto.getAccountAuditId());
+        }
+        if (Objects.nonNull(dto.getAntiFraudAuditId())) {
+            entity.setAntiFraudAuditId(dto.getAntiFraudAuditId());
+        }
+        if (Objects.nonNull(dto.getProfileAuditId())) {
+            entity.setProfileAuditId(dto.getProfileAuditId());
+        }
+        if (Objects.nonNull(dto.getAuthorizationAuditId())) {
+            entity.setAuthorizationAuditId(dto.getAuthorizationAuditId());
+        }
+        if (Objects.nonNull(dto.getPublicBankInfoAuditId())) {
+            entity.setPublicBankInfoAuditId(dto.getPublicBankInfoAuditId());
+        }
+
+        historyRepository.save(entity);
+        return mapper.toDto(entity);
+    }
+
+    @Override
+    @Transactional
+    public void deleteById(Long id) {
+        log.info("удаление записи HistoryEntity");
+        historyRepository.deleteById(id);
+
+    }
 }
