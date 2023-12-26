@@ -25,7 +25,7 @@ import javax.persistence.Table;
 @AllArgsConstructor
 @NoArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class LicenseEntity {
+public class LicenseEntity implements MainEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     Long id;

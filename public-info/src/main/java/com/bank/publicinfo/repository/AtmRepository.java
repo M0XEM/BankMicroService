@@ -8,7 +8,5 @@ import java.util.List;
 
 @Repository
 public interface AtmRepository extends JpaRepository<AtmEntity, Long> {
-    void deleteByIdAndBranch_Id(Long id, Long branchId);
-
     List<AtmEntity> findAllByBranch_Id(Long branchId);
 }

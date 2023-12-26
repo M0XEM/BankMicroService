@@ -8,8 +8,6 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.FieldDefaults;
 
-import javax.ws.rs.DefaultValue;
-
 @Data
 @AllArgsConstructor
 @NoArgsConstructor

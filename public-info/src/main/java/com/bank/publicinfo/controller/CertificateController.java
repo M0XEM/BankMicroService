@@ -1,5 +1,6 @@
 package com.bank.publicinfo.controller;
 
+import com.bank.publicinfo.aspect.annotation.Auditable;
 import com.bank.publicinfo.dto.CertificateDto;
 import com.bank.publicinfo.service.interfaces.BankDetailsService;
 import com.bank.publicinfo.service.interfaces.CertificateService;
@@ -57,31 +58,34 @@ public class CertificateController {
     @Operation(summary = "Добавить новый сертификат банка")
     @ApiResponse(responseCode = "201", description = "Создан успешно",
             content = @Content(schema = @Schema(implementation = CertificateDto.class)))
-    public ResponseEntity<CertificateDto> addCertificate(@Valid @RequestBody CertificateDto certificateDto,
+    @Auditable(entityType = "certificate", operationType = "save")
+    public ResponseEntity<CertificateDto> addCertificate(@Valid @RequestBody CertificateDto dto,
                                                          @Valid @PathVariable Long id) {
-        certificateDto.setBankDetails(bankDetailsService.findById(id));
-        final CertificateDto createdCertificateDto = certificateService.save(certificateDto);
+        dto.setBankDetails(bankDetailsService.findById(id));
+        final CertificateDto createdCertificateDto = certificateService.save(dto);
         return ResponseEntity.status(HttpStatus.CREATED).body(createdCertificateDto);
     }
 
-    @PutMapping("/{id}/certificates")
+    @PutMapping("/{bank_id}/certificates")
     @Operation(summary = "Обновить сертификат банка")
     @ApiResponse(responseCode = "200", description = "Обновлено успешно",
             content = @Content(schema = @Schema(implementation = CertificateDto.class)))
-    public ResponseEntity<CertificateDto> update(@Valid @RequestBody CertificateDto certificateDto,
-                                                 @Valid @PathVariable Long id,
-                                                 @Valid @RequestParam(value = "certificate_id") Long certificateId) {
-        certificateDto.setBankDetails(bankDetailsService.findById(id));
-        final CertificateDto updatedCertificateDto = certificateService.update(certificateId, certificateDto);
+    @Auditable(entityType = "certificate", operationType = "update")
+    public ResponseEntity<CertificateDto> update(@Valid @RequestBody CertificateDto dto,
+                                                 @Valid @PathVariable Long bank_id,
+                                                 @Valid @RequestParam(value = "certificate_id") Long id) {
+        dto.setBankDetails(bankDetailsService.findById(bank_id));
+        final CertificateDto updatedCertificateDto = certificateService.update(id, dto);
         return ResponseEntity.ok(updatedCertificateDto);
     }
 
-    @DeleteMapping("/{id}/certificates")
+    @DeleteMapping("/{bank_id}/certificates")
     @Operation(summary = "Удалить сертификат банка по идентификатору")
     @ApiResponse(responseCode = "204", description = "Удалено успешно")
-    public ResponseEntity<Void> deleteCertificateById(@Valid @PathVariable Long id,
-                                                      @Valid @RequestParam(value = "certificate_id") Long certificateId) {
-        certificateService.deleteByCertificateIdAndBankDetailsId(certificateId, id);
+    @Auditable(entityType = "certificate", operationType = "delete")
+    public ResponseEntity<Void> deleteCertificateById(@Valid @PathVariable Long bank_id,
+                                                      @Valid @RequestParam(value = "certificate_id") Long id) {
+        certificateService.deleteByCertificateIdAndBankDetailsId(id, bank_id);
         return ResponseEntity.noContent().build();
     }
 }

@@ -1,5 +1,6 @@
 package com.bank.publicinfo.controller;
 
+import com.bank.publicinfo.aspect.annotation.Auditable;
 import com.bank.publicinfo.dto.AtmDto;
 import com.bank.publicinfo.service.interfaces.AtmService;
 import com.bank.publicinfo.service.interfaces.BranchService;
@@ -66,8 +67,9 @@ public class AtmController {
     @Operation(summary = "Добавить новый банкомат без привязки к отделению банка")
     @ApiResponse(responseCode = "201", description = "Создан успешно",
             content = @Content(schema = @Schema(implementation = AtmDto.class)))
-    public ResponseEntity<AtmDto> addAtmWithoutBranch(@Valid @RequestBody AtmDto atmDto) {
-        final AtmDto createdAtmDto = atmService.save(atmDto);
+    @Auditable(entityType = "atm", operationType = "save")
+    public ResponseEntity<AtmDto> addAtmWithoutBranch(@Valid @RequestBody AtmDto dto) {
+        final AtmDto createdAtmDto = atmService.save(dto);
         return ResponseEntity.status(HttpStatus.CREATED).body(createdAtmDto);
     }
 
@@ -76,48 +78,30 @@ public class AtmController {
     @Operation(summary = "Добавить новый банкомат в определенное по id отделение банка")
     @ApiResponse(responseCode = "201", description = "Создан успешно",
             content = @Content(schema = @Schema(implementation = AtmDto.class)))
-    public ResponseEntity<AtmDto> addAtm(@Valid @RequestBody AtmDto atmDto, @Valid @PathVariable Long id) {
-        atmDto.setBranch(branchService.findById(id));
-        final AtmDto createdAtmDto = atmService.save(atmDto);
+    @Auditable(entityType = "atm", operationType = "save")
+    public ResponseEntity<AtmDto> addAtm(@Valid @RequestBody AtmDto dto, @Valid @PathVariable Long id) {
+        dto.setBranch(branchService.findById(id));
+        final AtmDto createdAtmDto = atmService.save(dto);
         return ResponseEntity.status(HttpStatus.CREATED).body(createdAtmDto);
     }
 
     @PutMapping("/atms")
-    @Operation(summary = "Обновить данные банкомата по его id без привязки к отделению банка")
+    @Operation(summary = "Обновить данные банкомата по его id")
     @ApiResponse(responseCode = "200", description = "Обновлено успешно",
             content = @Content(schema = @Schema(implementation = AtmDto.class)))
-    public ResponseEntity<AtmDto> update(@Valid @RequestBody AtmDto atmDto,
+    @Auditable(entityType = "atm", operationType = "update")
+    public ResponseEntity<AtmDto> update(@Valid @RequestBody AtmDto dto,
                                          @Valid @RequestParam(value = "id") Long id) {
-        final AtmDto updatedAtmDto = atmService.update(id, atmDto);
-        return ResponseEntity.ok(updatedAtmDto);
-    }
-
-    @PutMapping("/{id}/atms")
-    @Operation(summary = "Обновить данные определенного по id банкомата в определенном по id отделении банка")
-    @ApiResponse(responseCode = "200", description = "Обновлено успешно",
-            content = @Content(schema = @Schema(implementation = AtmDto.class)))
-    public ResponseEntity<AtmDto> update(@Valid @RequestBody AtmDto atmDto,
-                                         @Valid @RequestParam(value = "id") Long atmId,
-                                         @Valid @PathVariable Long id) {
-        atmDto.setBranch(branchService.findById(id));
-        final AtmDto updatedAtmDto = atmService.update(atmId, atmDto);
+        final AtmDto updatedAtmDto = atmService.update(id, dto);
         return ResponseEntity.ok(updatedAtmDto);
     }
 
     @DeleteMapping("/atms")
     @Operation(summary = "Удалить банкомат по его id")
     @ApiResponse(responseCode = "204", description = "Удалено успешно")
-    public ResponseEntity<Void> deleteAtmById(@Valid @RequestParam(value = "id") Long atmId) {
-        atmService.deleteByAtmId(atmId);
-        return ResponseEntity.noContent().build();
-    }
-
-    @DeleteMapping("/{id}/atms")
-    @Operation(summary = "Удалить определенный по id банкомат в определенном по id отделении банка")
-    @ApiResponse(responseCode = "204", description = "Удалено успешно")
-    public ResponseEntity<Void> deleteAtmByBranchIdAndAtmId(@Valid @PathVariable Long id,
-                                                            @Valid @RequestParam(value = "id") Long atmId) {
-        atmService.deleteByAtmIdAndBranchId(atmId, id);
+    @Auditable(entityType = "atm", operationType = "delete")
+    public ResponseEntity<Void> deleteAtmById(@Valid @RequestParam(value = "id") Long id) {
+        atmService.deleteById(id);
         return ResponseEntity.noContent().build();
     }
 }

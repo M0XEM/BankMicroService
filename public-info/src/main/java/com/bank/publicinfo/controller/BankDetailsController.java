@@ -1,5 +1,6 @@
 package com.bank.publicinfo.controller;
 
+import com.bank.publicinfo.aspect.annotation.Auditable;
 import com.bank.publicinfo.dto.BankDetailsDto;
 import com.bank.publicinfo.service.interfaces.BankDetailsService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -95,8 +96,9 @@ public class BankDetailsController {
     @Operation(summary = "Создать новый банк")
     @ApiResponse(responseCode = "201", description = "Создан успешно",
             content = @Content(schema = @Schema(implementation = BankDetailsDto.class)))
-    public ResponseEntity<BankDetailsDto> createBankDetails(@Valid @RequestBody BankDetailsDto bankDetailsDto) {
-        final BankDetailsDto createdBankDetailsDto = bankDetailsService.save(bankDetailsDto);
+    @Auditable(entityType = "bank", operationType = "save")
+    public ResponseEntity<BankDetailsDto> createBankDetails(@Valid @RequestBody BankDetailsDto dto) {
+        final BankDetailsDto createdBankDetailsDto = bankDetailsService.save(dto);
         return ResponseEntity.status(HttpStatus.CREATED).body(createdBankDetailsDto);
     }
 
@@ -104,15 +106,17 @@ public class BankDetailsController {
     @Operation(summary = "Обновить данные банка")
     @ApiResponse(responseCode = "200", description = "Обновлено успешно",
             content = @Content(schema = @Schema(implementation = BankDetailsDto.class)))
-    public ResponseEntity<BankDetailsDto> update(@Valid @RequestBody BankDetailsDto bankDetailsDto,
+    @Auditable(entityType = "bank", operationType = "update")
+    public ResponseEntity<BankDetailsDto> update(@Valid @RequestBody BankDetailsDto dto,
                                                  @Valid @RequestParam(value = "id") Long id) {
-        final BankDetailsDto updatedBankDetailsDto = bankDetailsService.update(id, bankDetailsDto);
+        final BankDetailsDto updatedBankDetailsDto = bankDetailsService.update(id, dto);
         return ResponseEntity.ok(updatedBankDetailsDto);
     }
 
-    @DeleteMapping()
+    @DeleteMapping
     @Operation(summary = "Удалить банк по идентификатору")
     @ApiResponse(responseCode = "204", description = "Удалено успешно")
+    @Auditable(entityType = "bank", operationType = "delete")
     public ResponseEntity<Void> deleteById(@Valid @RequestParam(value = "id") Long id) {
         bankDetailsService.deleteById(id);
         return ResponseEntity.noContent().build();

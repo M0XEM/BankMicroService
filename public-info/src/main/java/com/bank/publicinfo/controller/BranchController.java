@@ -1,5 +1,6 @@
 package com.bank.publicinfo.controller;
 
+import com.bank.publicinfo.aspect.annotation.Auditable;
 import com.bank.publicinfo.dto.BranchDto;
 import com.bank.publicinfo.service.interfaces.BranchService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -13,7 +14,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -66,8 +66,9 @@ public class BranchController {
     @Operation(summary = "Создать новое отделение банка")
     @ApiResponse(responseCode = "201", description = "Создано успешно",
             content = @Content(schema = @Schema(implementation = BranchDto.class)))
-    public ResponseEntity<BranchDto> createBranch(@Valid @RequestBody BranchDto branchDto) {
-        final BranchDto createdBranchDto = branchService.save(branchDto);
+    @Auditable(entityType = "branch", operationType = "save")
+    public ResponseEntity<BranchDto> createBranch(@Valid @RequestBody BranchDto dto) {
+        final BranchDto createdBranchDto = branchService.save(dto);
         return ResponseEntity.status(HttpStatus.CREATED).body(createdBranchDto);
     }
 
@@ -75,15 +76,17 @@ public class BranchController {
     @Operation(summary = "Обновить данные отделения банка")
     @ApiResponse(responseCode = "200", description = "Обновлено успешно",
             content = @Content(schema = @Schema(implementation = BranchDto.class)))
-    public ResponseEntity<BranchDto> update(@Valid @RequestBody BranchDto branchDto, @Valid @RequestParam Long id) {
-        final BranchDto updatedBranchDto = branchService.update(id, branchDto);
+    @Auditable(entityType = "branch", operationType = "update")
+    public ResponseEntity<BranchDto> update(@Valid @RequestBody BranchDto dto, @Valid @RequestParam Long id) {
+        final BranchDto updatedBranchDto = branchService.update(id, dto);
         return ResponseEntity.ok(updatedBranchDto);
     }
 
-    @DeleteMapping("/{id}")
+    @DeleteMapping
     @Operation(summary = "Удалить отделение банка по идентификатору")
     @ApiResponse(responseCode = "204", description = "Удалено успешно")
-    public ResponseEntity<Void> deleteById(@Valid @PathVariable Long id) {
+    @Auditable(entityType = "branch", operationType = "delete")
+    public ResponseEntity<Void> deleteById(@Valid @RequestParam Long id) {
         branchService.deleteById(id);
         return ResponseEntity.noContent().build();
     }

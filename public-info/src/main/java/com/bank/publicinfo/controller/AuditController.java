@@ -1,5 +1,6 @@
 package com.bank.publicinfo.controller;
 
+import com.bank.publicinfo.aspect.annotation.Auditable;
 import com.bank.publicinfo.dto.AuditDto;
 import com.bank.publicinfo.service.interfaces.AuditService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -13,7 +14,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -56,8 +56,9 @@ public class AuditController {
     @Operation(summary = "Создать новый аудит")
     @ApiResponse(responseCode = "201", description = "Создан успешно",
             content = @Content(schema = @Schema(implementation = AuditDto.class)))
-    public ResponseEntity<AuditDto> createAudit(@Valid @RequestBody AuditDto auditDto) {
-        final AuditDto createdAuditDto = auditService.save(auditDto);
+    @Auditable(entityType = "audit", operationType = "save")
+    public ResponseEntity<AuditDto> createAudit(@Valid @RequestBody AuditDto dto) {
+        final AuditDto createdAuditDto = auditService.save(dto);
         return ResponseEntity.status(HttpStatus.CREATED).body(createdAuditDto);
     }
 
@@ -65,15 +66,17 @@ public class AuditController {
     @Operation(summary = "Обновить данные аудита")
     @ApiResponse(responseCode = "200", description = "Обновлено успешно",
             content = @Content(schema = @Schema(implementation = AuditDto.class)))
-    public ResponseEntity<AuditDto> updateAudit(@Valid @RequestBody AuditDto auditDto, @Valid @RequestParam Long id) {
-        final AuditDto updatedAuditDTO = auditService.update(id, auditDto);
+    @Auditable(entityType = "audit", operationType = "update")
+    public ResponseEntity<AuditDto> updateAudit(@Valid @RequestBody AuditDto dto, @Valid @RequestParam Long id) {
+        final AuditDto updatedAuditDTO = auditService.update(id, dto);
         return ResponseEntity.ok(updatedAuditDTO);
     }
 
-    @DeleteMapping("/{id}")
+    @DeleteMapping
     @Operation(summary = "Удалить аудит по его идентификатору")
     @ApiResponse(responseCode = "204", description = "Удалено успешно")
-    public ResponseEntity<Void> deleteById(@Valid @PathVariable Long id) {
+    @Auditable(entityType = "audit", operationType = "delete")
+    public ResponseEntity<Void> deleteById(@Valid @RequestParam Long id) {
         auditService.deleteById(id);
         return ResponseEntity.noContent().build();
     }

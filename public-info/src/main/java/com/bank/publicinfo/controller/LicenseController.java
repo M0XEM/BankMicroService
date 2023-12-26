@@ -1,5 +1,6 @@
 package com.bank.publicinfo.controller;
 
+import com.bank.publicinfo.aspect.annotation.Auditable;
 import com.bank.publicinfo.dto.LicenseDto;
 import com.bank.publicinfo.service.interfaces.BankDetailsService;
 import com.bank.publicinfo.service.interfaces.LicenseService;
@@ -57,31 +58,34 @@ public class LicenseController {
     @Operation(summary = "Добавить новую лицензию банка")
     @ApiResponse(responseCode = "201", description = "Создан успешно",
             content = @Content(schema = @Schema(implementation = LicenseDto.class)))
-    public ResponseEntity<LicenseDto> addLicense(@Valid @RequestBody LicenseDto licenseDto,
+    @Auditable(entityType = "license", operationType = "save")
+    public ResponseEntity<LicenseDto> addLicense(@Valid @RequestBody LicenseDto dto,
                                                  @Valid @PathVariable Long id) {
-        licenseDto.setBankDetails(bankDetailsService.findById(id));
-        final LicenseDto createdLicenseDto = licenseService.save(licenseDto);
+        dto.setBankDetails(bankDetailsService.findById(id));
+        final LicenseDto createdLicenseDto = licenseService.save(dto);
         return ResponseEntity.status(HttpStatus.CREATED).body(createdLicenseDto);
     }
 
-    @PutMapping("/{id}/licenses")
+    @PutMapping("/{bank_id}/licenses")
     @Operation(summary = "Обновить лицензии банка")
     @ApiResponse(responseCode = "200", description = "Обновлено успешно",
             content = @Content(schema = @Schema(implementation = LicenseDto.class)))
-    public ResponseEntity<LicenseDto> update(@Valid @RequestBody LicenseDto licenseDto,
-                                             @Valid @PathVariable Long id,
-                                             @Valid @RequestParam(value = "license_id") Long licenseId) {
-        licenseDto.setBankDetails(bankDetailsService.findById(id));
-        final LicenseDto updatedLicenseDto = licenseService.update(licenseId, licenseDto);
+    @Auditable(entityType = "license", operationType = "update")
+    public ResponseEntity<LicenseDto> update(@Valid @RequestBody LicenseDto dto,
+                                             @Valid @PathVariable Long bank_id,
+                                             @Valid @RequestParam(value = "license_id") Long id) {
+        dto.setBankDetails(bankDetailsService.findById(bank_id));
+        final LicenseDto updatedLicenseDto = licenseService.update(id, dto);
         return ResponseEntity.ok(updatedLicenseDto);
     }
 
-    @DeleteMapping("/{id}/licenses")
+    @DeleteMapping("/{bank_id}/licenses")
     @Operation(summary = "Удалить лицензию банка по идентификатору")
     @ApiResponse(responseCode = "204", description = "Удалено успешно")
-    public ResponseEntity<Void> deleteLicenseById(@Valid @PathVariable Long id,
-                                                  @Valid @RequestParam(value = "license_id") Long licenseId) {
-        licenseService.deleteByLicenseIdAndBankDetailsId(licenseId, id);
+    @Auditable(entityType = "certificate", operationType = "delete")
+    public ResponseEntity<Void> deleteLicenseById(@Valid @PathVariable Long bank_id,
+                                                  @Valid @RequestParam(value = "license_id") Long id) {
+        licenseService.deleteByLicenseIdAndBankDetailsId(id, bank_id);
         return ResponseEntity.noContent().build();
     }
 }
