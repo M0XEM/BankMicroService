@@ -36,6 +36,6 @@ public class SuspiciousCardTransferController {
             content = {@Content(mediaType = "application/json", schema = @Schema(implementation = SuspiciousCardTransfer.class))})
     @PostMapping("/transfer")
     public SuspiciousCardTransfer createTransfer(@RequestBody @Parameter(description = "Транзакция для обработки") CardTransfer cardTransfer) {
-        return suspiciousCardTransferService.checkAccountTransfer(cardTransfer);
+        return suspiciousCardTransferService.doOperationsWithTransfer(cardTransfer);
     }
 }

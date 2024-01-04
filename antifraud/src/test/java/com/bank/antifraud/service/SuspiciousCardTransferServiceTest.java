@@ -1,10 +1,10 @@
 package com.bank.antifraud.service;
 
-import com.bank.antifraud.entity.account.AccountTransfer;
-import com.bank.antifraud.entity.account.SuspiciousAccountTransfer;
+import com.bank.antifraud.entity.card.CardTransfer;
+import com.bank.antifraud.entity.card.SuspiciousCardTransfer;
 import com.bank.antifraud.exception.SuspiciousTransferNotFoundException;
-import com.bank.antifraud.repository.suspicioustransfer.SuspiciousAccountTransferRepository;
-import com.bank.antifraud.repository.transfer.AccountTransferRepository;
+import com.bank.antifraud.repository.suspicioustransfer.SuspiciousCardTransferRepository;
+import com.bank.antifraud.repository.transfer.CardTransferRepository;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -19,19 +19,19 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-public class SuspiciousAccountTransferServiceTest {
+public class SuspiciousCardTransferServiceTest {
 
     @Mock
-    private SuspiciousAccountTransferRepository suspiciousTransferRepository;
+    private SuspiciousCardTransferRepository suspiciousTransferRepository;
     @Mock
-    private AccountTransferRepository transferRepository;
+    private CardTransferRepository transferRepository;
     @InjectMocks
-    private SuspiciousAccountTransferService suspiciousTransferService;
+    private SuspiciousCardTransferService suspiciousTransferService;
 
     @ParameterizedTest
-    @MethodSource("com.bank.antifraud.service.SuspiciousAccountTransferServiceTest#getArgumentCheckingTransfer")
-    void checkingTransferForAllPossibleCases(AccountTransfer transfer, SuspiciousAccountTransfer suspiciousTransfer, boolean isPresent) {
-        SuspiciousAccountTransfer actualResult = suspiciousTransferService.checkTransfer(transfer, isPresent);
+    @MethodSource("com.bank.antifraud.service.SuspiciousCardTransferServiceTest#getArgumentCheckingTransfer")
+    void checkingTransferForAllPossibleCases(CardTransfer transfer, SuspiciousCardTransfer suspiciousTransfer, boolean isPresent) {
+        SuspiciousCardTransfer actualResult = suspiciousTransferService.checkTransfer(transfer, isPresent);
 
         assertEquals(actualResult, suspiciousTransfer);
 
@@ -39,8 +39,8 @@ public class SuspiciousAccountTransferServiceTest {
 
     @Test
     void successfulOperationWithTransfer() {
-        AccountTransfer transfer = getT(1, 11, 200000, "Some text", 11);
-        SuspiciousAccountTransfer suspiciousTransfer = getST(0, 1, false, false,
+        CardTransfer transfer = getT(1, 11, 200000, "Some text", 11);
+        SuspiciousCardTransfer suspiciousTransfer = getST(0, 1, false, false,
                 "Не заблокирован","Подозрений нет");
         doReturn(transfer).when(transferRepository).findByNumber(transfer.getNumber());
         doReturn(suspiciousTransfer).when(suspiciousTransferRepository).findByTransferId(suspiciousTransfer.getTransferId());
@@ -55,8 +55,8 @@ public class SuspiciousAccountTransferServiceTest {
 
     @Test
     void incorrectOperationWithTransfer() {
-        AccountTransfer transfer = new AccountTransfer();
-        SuspiciousAccountTransfer suspiciousTransfer = new SuspiciousAccountTransfer();
+        CardTransfer transfer = new CardTransfer();
+        SuspiciousCardTransfer suspiciousTransfer = new SuspiciousCardTransfer();
 
         doReturn(new Exception("Ошибка")).when(transferRepository).save(transfer);
         doReturn(new Exception("Ошибка")).when(suspiciousTransferRepository).save(suspiciousTransfer);
@@ -69,7 +69,7 @@ public class SuspiciousAccountTransferServiceTest {
 
     @Test
     void successfulCreateOrUpdate() {
-        SuspiciousAccountTransfer suspiciousTransfer = new SuspiciousAccountTransfer();
+        SuspiciousCardTransfer suspiciousTransfer = new SuspiciousCardTransfer();
         doReturn(suspiciousTransfer).when(suspiciousTransferRepository).findByTransferId(suspiciousTransfer.getTransferId());
 
         suspiciousTransferService.create(suspiciousTransfer);
@@ -79,7 +79,7 @@ public class SuspiciousAccountTransferServiceTest {
     }
     @Test
     void incorrectUpdate() {
-        SuspiciousAccountTransfer suspiciousTransfer = new SuspiciousAccountTransfer();
+        SuspiciousCardTransfer suspiciousTransfer = new SuspiciousCardTransfer();
         doReturn(new Exception("Ошибка")).when(suspiciousTransferRepository).save(suspiciousTransfer);
 
         assertThrows(Exception.class, () -> suspiciousTransferService.getSuspiciousRepository().save(suspiciousTransfer));
@@ -88,7 +88,7 @@ public class SuspiciousAccountTransferServiceTest {
 
     @Test
     void successfulRead() {
-        SuspiciousAccountTransfer suspiciousTransfer = new SuspiciousAccountTransfer();
+        SuspiciousCardTransfer suspiciousTransfer = new SuspiciousCardTransfer();
         doReturn(Optional.of(suspiciousTransfer)).when(suspiciousTransferRepository).findById(1L);
 
         suspiciousTransferService.read(1L);
@@ -143,9 +143,9 @@ public class SuspiciousAccountTransferServiceTest {
     }
 
 
-    private static AccountTransfer getT(long id, long number, double amount, String purpose, long accountDetails) {
+    private static CardTransfer getT(long id, long number, double amount, String purpose, long accountDetails) {
 
-        return AccountTransfer.builder()
+        return CardTransfer.builder()
                 .id(id)
                 .number(number)
                 .amount(amount)
@@ -154,9 +154,9 @@ public class SuspiciousAccountTransferServiceTest {
                 .build();
     }
 
-    private static SuspiciousAccountTransfer getST(long id, long transferId, boolean isBlocked, boolean isSuspicious, String blockedReason, String suspiciousReason) {
+    private static SuspiciousCardTransfer getST(long id, long transferId, boolean isBlocked, boolean isSuspicious, String blockedReason, String suspiciousReason) {
 
-        return SuspiciousAccountTransfer.builder()
+        return SuspiciousCardTransfer.builder()
                 .id(id)
                 .transferId(transferId)
                 .isBlocked(isBlocked)

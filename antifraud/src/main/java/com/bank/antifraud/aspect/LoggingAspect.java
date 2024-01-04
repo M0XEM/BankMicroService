@@ -12,19 +12,25 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.sql.Timestamp;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 
 @Component
 @Aspect
 public class LoggingAspect {
 
     private final AuditService auditService;
-    private final ObjectMapper objectMapper;
+    private final ObjectMapper objectMapper = new ObjectMapper();
 
-    @Autowired
-    public LoggingAspect(AuditService auditService, ObjectMapper objectMapper) {
+    public LoggingAspect(AuditService auditService) {
         this.auditService = auditService;
-        this.objectMapper = objectMapper;
     }
+
+//    @Autowired
+//    public LoggingAspect(AuditService auditService, ObjectMapper objectMapper) {
+//        this.auditService = auditService;
+//        this.objectMapper = objectMapper;
+//    }
 
     @Pointcut("execution(* com.bank.antifraud.controller.SuspiciousAccountTransferController.*(..))")
     private void account() {}
@@ -42,8 +48,17 @@ public class LoggingAspect {
     private void allSuspiciousMethods() {}
 
     @Around("allSuspiciousMethods()")
-    public Object beforeSaveSuspiciousAccountTransfer(ProceedingJoinPoint proceedingJoinPoint) throws Throwable {
+    public Object beforeAnyCudMethod(ProceedingJoinPoint proceedingJoinPoint) throws Throwable {
 
+        Audit audit = getAuditInfo(proceedingJoinPoint);
+
+        auditService.createAudit(audit);
+
+        return proceedingJoinPoint.proceed();
+    }
+
+
+    public Audit getAuditInfo(ProceedingJoinPoint proceedingJoinPoint) throws Throwable {
         Object targetMethodResult = proceedingJoinPoint.proceed();
         String methodName = proceedingJoinPoint.getSignature().getName();
 
@@ -69,10 +84,10 @@ public class LoggingAspect {
                     .newEntityJson(null)
                     .entityJson(objectMapper.writeValueAsString(targetMethodResult))
                     .build();
-            auditService.createAudit(audit);
+
         } catch (JsonProcessingException e) {
             throw new RuntimeException(e);
         }
-        return targetMethodResult;
+        return audit;
     }
 }

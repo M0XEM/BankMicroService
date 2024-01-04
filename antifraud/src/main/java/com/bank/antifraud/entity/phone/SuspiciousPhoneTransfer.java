@@ -4,6 +4,7 @@ import com.bank.antifraud.entity.abstractclasses.SuspiciousTransfer;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import lombok.experimental.SuperBuilder;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -14,6 +15,7 @@ import javax.persistence.Table;
 @Table(name = "suspicious_phone_transfers", schema = "anti_fraud")
 @Data
 @NoArgsConstructor
+@SuperBuilder
 public class SuspiciousPhoneTransfer extends SuspiciousTransfer {
 
     @Column(name = "phone_transfer_id", unique = true, nullable = false)

@@ -1,13 +1,18 @@
 package com.bank.antifraud.entity.abstractclasses;
 
 import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.experimental.SuperBuilder;
 
 import javax.persistence.*;
 
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 @MappedSuperclass
+@SuperBuilder
 public class Transfer {
 
     @Id

@@ -1,8 +1,8 @@
 package com.bank.antifraud.controller;
 import com.bank.antifraud.entity.account.AccountTransfer;
 import com.bank.antifraud.entity.account.SuspiciousAccountTransfer;
-import com.bank.antifraud.handler.SuspiciousAccountTransferErrorResponse;
-import com.bank.antifraud.exception.SuspiciousAccountTransferNotFoundException;
+import com.bank.antifraud.handler.SuspiciousTransferErrorResponse;
+import com.bank.antifraud.exception.SuspiciousTransferNotFoundException;
 import com.bank.antifraud.service.SuspiciousAccountTransferService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -38,7 +38,7 @@ public class SuspiciousAccountTransferController {
             content = {@Content(mediaType = "application/json", schema = @Schema(implementation = SuspiciousAccountTransfer.class))})
     @PostMapping("/transfer")
     public SuspiciousAccountTransfer createTransfer(@RequestBody @Parameter(description = "Транзакция для обработки") AccountTransfer accountTransfer) {
-        return suspiciousAccountTransferService.checkAccountTransfer(accountTransfer);
+        return suspiciousAccountTransferService.doOperationsWithTransfer(accountTransfer);
     }
 
     ////////////////////////////////////////////////////////////
@@ -102,8 +102,8 @@ public class SuspiciousAccountTransferController {
 
     //Метод, который в себя ловит исключения и возвращает необходимый json
     @ExceptionHandler
-    private ResponseEntity<SuspiciousAccountTransferErrorResponse> handleException(SuspiciousAccountTransferNotFoundException e) {
-        SuspiciousAccountTransferErrorResponse response = new SuspiciousAccountTransferErrorResponse(
+    private ResponseEntity<SuspiciousTransferErrorResponse> handleException(SuspiciousTransferNotFoundException e) {
+        SuspiciousTransferErrorResponse response = new SuspiciousTransferErrorResponse(
                 System.currentTimeMillis()
         );
         response.setMessage(e.getMessage());

@@ -1,12 +1,16 @@
 package com.bank.antifraud.entity.abstractclasses;
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.experimental.SuperBuilder;
 
 import javax.persistence.*;
 
 @Data
 @NoArgsConstructor
+@SuperBuilder
 @MappedSuperclass
 public class SuspiciousTransfer {
 
@@ -28,5 +32,7 @@ public class SuspiciousTransfer {
 
     @Column(name = "suspicious_reason", nullable = false)
     private String suspiciousReason;
+
+
 
 }

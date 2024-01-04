@@ -6,6 +6,8 @@ import com.bank.antifraud.repository.suspicioustransfer.BaseSuspiciousRepository
 import com.bank.antifraud.repository.suspicioustransfer.SuspiciousAccountTransferRepository;
 import com.bank.antifraud.repository.transfer.AccountTransferRepository;
 import com.bank.antifraud.repository.transfer.BaseTransferRepository;
+import lombok.NoArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
