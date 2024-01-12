@@ -1,7 +1,10 @@
 package com.bank.antifraud.entity.phone;
 
 import com.bank.antifraud.entity.abstractclasses.Transfer;
-import lombok.*;
+
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 
 import javax.persistence.Column;

@@ -1,6 +1,5 @@
 package com.bank.antifraud.controller;
 
-import com.bank.antifraud.entity.account.SuspiciousAccountTransfer;
 import com.bank.antifraud.entity.card.CardTransfer;
 import com.bank.antifraud.entity.card.SuspiciousCardTransfer;
 import com.bank.antifraud.service.SuspiciousCardTransferService;
