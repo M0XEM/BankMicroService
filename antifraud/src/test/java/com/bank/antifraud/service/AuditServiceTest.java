@@ -1,19 +1,13 @@
 package com.bank.antifraud.service;
 
 import com.bank.antifraud.entity.Audit;
-import com.bank.antifraud.entity.account.SuspiciousAccountTransfer;
 import com.bank.antifraud.repository.AuditRepository;
-import com.bank.antifraud.repository.transfer.AccountTransferRepository;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-
-import java.util.Optional;
-
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.verify;
 
 @ExtendWith(MockitoExtension.class)
 class AuditServiceTest {
