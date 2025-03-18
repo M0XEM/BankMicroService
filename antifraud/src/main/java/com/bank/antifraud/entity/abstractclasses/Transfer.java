@@ -35,4 +35,5 @@ public class Transfer {
     @Column(name = "account_details_id")
     private long accountDetailsId;
 
+
 }

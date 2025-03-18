@@ -1,7 +1,8 @@
 server:
   port: 8085
   servlet:
-    context-path: /api/account
+    context-path: /
+
 management:
   server:
     port: 8185
@@ -11,12 +12,12 @@ management:
   endpoints:
     web:
       exposure:
-        include: '*'
+        include: mappings
 spring:
   datasource:
-    url: jdbc:postgresql://localhost:5432/postgres
-    username: user
-    password: password
+    url: jdbc:postgresql://localhost:5433/postgres
+    username: postgres
+    password: postgres
   liquibase:
     default-schema: account
     change-log: db.changelog/db.changelog-master.yaml
